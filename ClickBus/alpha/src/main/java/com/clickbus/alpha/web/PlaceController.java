@@ -35,11 +35,9 @@ public class PlaceController {
 
     }
 
-    @PatchMapping
-    public Mono<ResponseEntity<PlaceResponse>> edit(@RequestParam Long id, @RequestBody @Valid PlaceRequest request) {
-        return placeService.edit(id, request).
-                map(place -> ResponseEntity.ok(PlaceMapper.toResponse(place))).
-                defaultIfEmpty(ResponseEntity.notFound().build());
+    @PatchMapping("{id}")
+    public Mono<PlaceResponse> edit(@PathVariable("id") Long id, @RequestBody PlaceRequest request) {
+        return placeService.edit(id, request).map(PlaceMapper::toResponse);
     }
 
     @GetMapping

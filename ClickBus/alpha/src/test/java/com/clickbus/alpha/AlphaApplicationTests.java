@@ -3,18 +3,20 @@ package com.clickbus.alpha;
 import com.clickbus.alpha.api.PlaceRequest;
 import com.clickbus.alpha.domain.Place;
 import com.clickbus.alpha.domain.PlaceRepository;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(TestConfig.class)
 class AlphaApplicationTests {
 
 	public static final Place CENTRAL_PARK = new Place(
-			1L, "Central Park", "central-park", "New York", "New York", null, null);
+			1L, "Central Park", "central-park", "NY", "NY", null, null);
 
 	@Autowired
 	WebTestClient webTestClient;
@@ -66,18 +68,23 @@ class AlphaApplicationTests {
 		final String newState = "New State";
 		final String newSlug = "new-name";
 
+		// Updates name, city and state.
 		webTestClient
-				.put()
+				.patch()
 				.uri("/places/1")
-				.bodyValue(new PlaceRequest(newName, newCity, newState))
+				.bodyValue(
+						new PlaceRequest(newName, newCity, newState))
 				.exchange()
+				.expectStatus().isOk()
 				.expectBody()
 				.jsonPath("name").isEqualTo(newName)
 				.jsonPath("city").isEqualTo(newCity)
 				.jsonPath("state").isEqualTo(newState)
 				.jsonPath("slug").isEqualTo(newSlug)
+				.jsonPath("createdAt").isNotEmpty()
 				.jsonPath("updatedAt").isNotEmpty();
 
+		// Updates only name
 		webTestClient
 				.patch()
 				.uri("/places/1")
@@ -93,7 +100,7 @@ class AlphaApplicationTests {
 				.jsonPath("createdAt").isNotEmpty()
 				.jsonPath("updatedAt").isNotEmpty();
 
-
+		// Updates only city
 		webTestClient
 				.patch()
 				.uri("/places/1")
@@ -109,6 +116,7 @@ class AlphaApplicationTests {
 				.jsonPath("createdAt").isNotEmpty()
 				.jsonPath("updatedAt").isNotEmpty();
 
+		// Updates only state
 		webTestClient
 				.patch()
 				.uri("/places/1")
@@ -123,6 +131,16 @@ class AlphaApplicationTests {
 				.jsonPath("slug").isEqualTo(CENTRAL_PARK.slug())
 				.jsonPath("createdAt").isNotEmpty()
 				.jsonPath("updatedAt").isNotEmpty();
+	}
+
+	@Test
+	void testGetFailure() {
+		webTestClient
+				.get()
+				.uri("/places/8")
+				.exchange()
+				.expectStatus()
+				.isNotFound();
 	}
 
 	@Test
