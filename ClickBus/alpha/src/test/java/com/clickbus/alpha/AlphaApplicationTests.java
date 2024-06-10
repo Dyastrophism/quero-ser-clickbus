@@ -2,6 +2,7 @@ package com.clickbus.alpha;
 
 import com.clickbus.alpha.api.PlaceRequest;
 import com.clickbus.alpha.domain.Place;
+import com.clickbus.alpha.domain.PlaceRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,11 +19,15 @@ class AlphaApplicationTests {
 	@Autowired
 	WebTestClient webTestClient;
 
+	@Autowired
+	PlaceRepository placeRepository;
+
 	@Test
 	void testCreatePlaceSucess() {
-		var name = "Valid Name";
-		var city = "Valid City";
-		var state = "Valid State";
+		final String name = "Valid Name";
+		final String city = "Valid City";
+		final String state = "Valid State";
+		final String slug = "valid-name";
 
 		webTestClient
 				.post()
@@ -33,6 +38,7 @@ class AlphaApplicationTests {
 				.jsonPath("name").isEqualTo(name)
 				.jsonPath("city").isEqualTo(city)
 				.jsonPath("state").isEqualTo(state)
+				.jsonPath("slug").isEqualTo(slug)
 				.jsonPath("updatedAt").isNotEmpty()
 				.jsonPath("createdAt").isNotEmpty();
 
@@ -40,9 +46,9 @@ class AlphaApplicationTests {
 
 	@Test
 	void testCreatePlaceFail() {
-		var name = "";
-		var city = "";
-		var state = "";
+		final String name = "";
+		final String city = "";
+		final String state = "";
 
 		webTestClient
 				.post()
@@ -54,7 +60,7 @@ class AlphaApplicationTests {
 	}
 
 	@Test
-	public void testEditPlaceSuccess() {
+	void testEditPlaceSuccess() {
 		final String newName = "New Name";
 		final String newCity = "New City";
 		final String newState = "New State";
@@ -69,6 +75,7 @@ class AlphaApplicationTests {
 				.jsonPath("name").isEqualTo(newName)
 				.jsonPath("city").isEqualTo(newCity)
 				.jsonPath("state").isEqualTo(newState)
+				.jsonPath("slug").isEqualTo(newSlug)
 				.jsonPath("updatedAt").isNotEmpty();
 
 		webTestClient
