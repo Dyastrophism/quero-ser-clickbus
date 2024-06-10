@@ -22,4 +22,7 @@ public record Place(
         @LastModifiedDate
         LocalDateTime updatedAt
 ) {
+        public Place withSlug(String slug) {
+                return new Place(id, name, slug, city, state, createdAt, updatedAt);
+        }
 }
